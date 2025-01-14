@@ -1,6 +1,6 @@
 /* Type checking */
 
-import { RequestHandler } from "express"
+import type { RequestHandler } from "express"
 
 export type  typeValidation<req , res>  = RequestHandler<
 any,

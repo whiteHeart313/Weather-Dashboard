@@ -1,9 +1,10 @@
-import { RequestHandler } from "express";
+import type  { RequestHandler } from "express";
 
 
 export const requestLogger : RequestHandler = (req , res , next)=> {
 
     console.log(req.protocol) ; 
-    next() 
+    next()  ; 
 
 }
+

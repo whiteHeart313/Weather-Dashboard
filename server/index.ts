@@ -1,8 +1,9 @@
 
 
-import express , {RequestHandler} from 'express' 
+import express  from 'express' 
 import {requestLogger} from './Middlewares/requestLogger'
 import asyncHandler from "express-async-handler"
+import { getCityWeather } from './Handlers/cityWeather';
 
 (
     async ()=> {
@@ -14,10 +15,9 @@ import asyncHandler from "express-async-handler"
         app.get('/v1/currentWeather'  , asyncHandler(getCityWeather) )
         app.get('/v1/n-DayWeatherForecast'  , asyncHandler(()=> console.log()) )
 
-
+        app.listen(8080)
+        console.log('Server is running http://localhost:8080')
     }
 ) ()
 
-function getCityWeather(...args: unknown[]): void | Promise<void> {
-    throw new Error('Function not implemented.');
-}
+
