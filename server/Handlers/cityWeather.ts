@@ -1,5 +1,4 @@
 import  { cityWeatherResponse, typeValidation, userRequestWeather , DailyForecast } from "../types";
-import { Request, Response } from 'express';
 import axios from 'axios';
 
 export const getCityCurrentWeather : typeValidation <userRequestWeather , cityWeatherResponse>= async (req , res ) => {
@@ -26,9 +25,12 @@ export const getCityCurrentWeather : typeValidation <userRequestWeather , cityWe
         };
 
         res.status(200).send(weatherData);
-    } catch (error: any) {
-        console.log(error)
-        res.status(error.response.data.cod).send({ message: error.response.data.message  });
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response && error.response.data.cod) {
+            res.status(error.response.data.cod).send({ message: error.response.data.message });
+        }
+        else 
+            res.status(500).send({ message: "Something Went Wrong! " }); 
     }
 
 } 
@@ -78,7 +80,11 @@ export const getCityForecastWeather : typeValidation <userRequestWeather , Daily
         });
 
         res.status(200).send(result);
-    } catch (error: any) {
-        res.status(error.response.data.cod).send({ message: error.response.data.message  });
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response && error.response.data.cod) {
+            res.status(error.response.data.cod).send({ message: error.response.data.message });
+        }
+        else 
+            res.status(500).send({ message: "Something Went Wrong! " }); 
     }
 };
