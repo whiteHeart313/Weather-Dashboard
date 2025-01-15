@@ -107,5 +107,5 @@ dist
 
 
 ./server/.env
-
+./server/package-lock.json
 ./vscode
