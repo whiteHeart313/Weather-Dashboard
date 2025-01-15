@@ -1,8 +1,8 @@
-import  { cityWeatherResponse, typeValidation, userRequestWeather } from "../types";
+import  { cityWeatherResponse, typeValidation, userRequestWeather , DailyForecast } from "../types";
+import { Request, Response } from 'express';
+import axios from 'axios';
 
-const axios = require('axios');
-
-export const getCityWeather : typeValidation <userRequestWeather , cityWeatherResponse>= async (req , res ) => {
+export const getCityCurrentWeather : typeValidation <userRequestWeather , cityWeatherResponse>= async (req , res ) => {
     
     const { cityName } = req.body;
 
@@ -10,21 +10,74 @@ export const getCityWeather : typeValidation <userRequestWeather , cityWeatherRe
         res.status(400).send({ message: "City name is required" });
         return ; 
     }
+
     try {
         const apiKey = process.env.OPEN_WEATHER_KEY;
-        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`);
-
+        const firstPartOfUrl = process.env.OPEN_WEATHER_API_LINK;
+        const url = `${firstPartOfUrl}q=${cityName}&appid=${apiKey}&units=metric`
+        const response = await axios.get(url);
         const weatherData: cityWeatherResponse = {
-            cityName: response.data.name,
-            currentTemprature: `${response.data.main.temp} °C`,
+            cityName: response.data.name, 
+            currentTemprature: response.data.main.temp ,
             weatherDescription: response.data.weather[0].description,
-            humidityLevel: `${response.data.main.humidity} %`,
-            windSpeed: `${response.data.wind.speed} m/s`
+            humidityLevel: response.data.main.humidity , 
+            windSpeed: response.data.wind.speed
+            
         };
 
         res.status(200).send(weatherData);
-    } catch (error) {
-        res.status(500).send({ message: "Failed to fetch weather data" });
+    } catch (error: any) {
+        console.log(error)
+        res.status(error.response.data.cod).send({ message: error.response.data.message  });
     }
 
 } 
+
+
+
+
+export const getCityForecastWeather : typeValidation <userRequestWeather , DailyForecast[]> = async (req, res) => {
+    const { cityName } = req.body;
+
+    if (!cityName) {
+        res.status(400).send({ message: "City name is required" });
+        return;
+    }
+
+    try {
+        const apiKey = process.env.OPEN_WEATHER_KEY;
+        const firstPartOfUrl = process.env.OPEN_WEATHER_FORCAST_LINK;
+        const url = `${firstPartOfUrl}q=${cityName}&appid=${apiKey}&units=metric`;
+
+        const response = await axios.get(url);
+        const forecastData = response.data.list;
+
+        const dailyForecasts: { [date: string]: { temps: number[], descriptions: string[] } } = {};
+
+        forecastData.forEach((entry: any) => {
+            const date = entry.dt_txt.split(' ')[0];
+            if (!dailyForecasts[date]) {
+                dailyForecasts[date] = { temps: [], descriptions: [] };
+            }
+            dailyForecasts[date].temps.push(entry.main.temp);
+            dailyForecasts[date].descriptions.push(entry.weather[0].description);
+        });
+
+        const result: DailyForecast[] = Object.keys(dailyForecasts).map(date => {
+            const temps = dailyForecasts[date].temps;
+            const descriptions = dailyForecasts[date].descriptions;
+            const averageTemperature = temps.reduce((a, b) => a + b, 0) / temps.length;
+            const weatherDescription = descriptions[0]; // Simplified: taking the first description
+
+            return {
+                date,
+                averageTemperature,
+                weatherDescription
+            };
+        });
+
+        res.status(200).send(result);
+    } catch (error: any) {
+        res.status(error.response.data.cod).send({ message: error.response.data.message  });
+    }
+};
