@@ -9,12 +9,19 @@ Partial<req> ,
 any
 > 
 
-export type message<T> = T & {message : string }
+export type message<T> = T | {message : string }
 export interface cityWeatherResponse { 
     cityName : string , 
-    currentTemprature: string , 
-    weatherDescription : string , 
-    humidityLevel : string, 
-    windSpeed : string 
+    currentTemprature : number ,
+    weatherDescription : string ,
+    humidityLevel : number ,
+    windSpeed : number
+    
 }
 export type userRequestWeather = Pick<cityWeatherResponse , 'cityName'>
+
+export interface DailyForecast {
+    date: string;
+    averageTemperature: number;
+    weatherDescription: string;
+}
