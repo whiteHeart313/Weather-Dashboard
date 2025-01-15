@@ -22,6 +22,6 @@ export type userRequestWeather = Pick<cityWeatherResponse , 'cityName'>
 
 export interface DailyForecast {
     date: string;
-    averageTemperature: number;
+    averageTemperature: string;
     weatherDescription: string;
 }
