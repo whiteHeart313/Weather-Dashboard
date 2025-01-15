@@ -62,17 +62,18 @@ export const getCityForecastWeather : typeValidation <userRequestWeather , Daily
             dailyForecasts[date].temps.push(entry.main.temp);
             dailyForecasts[date].descriptions.push(entry.weather[0].description);
         });
-
+        // the API return 4 weather descriptions for each day, we will use the first one
         const result: DailyForecast[] = Object.keys(dailyForecasts).map(date => {
             const temps = dailyForecasts[date].temps;
             const descriptions = dailyForecasts[date].descriptions;
-            const averageTemperature = temps.reduce((a, b) => a + b, 0) / temps.length;
-            const weatherDescription = descriptions[0]; // Simplified: taking the first description
+            const averageTemperature = `${(temps.reduce((a, b) => a + b, 0) / temps.length )} °C`; ;
+            const weatherDescription = descriptions[0]; 
+            
 
             return {
                 date,
                 averageTemperature,
-                weatherDescription
+                weatherDescription 
             };
         });
 
