@@ -25,7 +25,7 @@ This project is a small backend service that integrates with a free weather API 
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/weather-api-backend.git
-   cd weather-api-backend 
+   cd weather-api-backend/server  
 2. Install dependencies: 
    ``` npm install ```
 3. In .env.example file in the root directory, add your API key
