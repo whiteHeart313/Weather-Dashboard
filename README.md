@@ -34,7 +34,7 @@ This project is a small backend service that integrates with a free weather API 
    ```
    docker run --name redis -d -p 6379:6379 redis
    ```
-5. Create YOUR .env file , add your api key and copy the links that exists in .  env.example  
+5. Create YOUR `.env` file , add your `api key` and copy the links that exists in `.env.example`  
 
 ## Running the Service
 ### To start the server, run the following command:
