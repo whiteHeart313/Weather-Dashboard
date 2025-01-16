@@ -17,7 +17,7 @@ This project is a small backend service that integrates with a free weather API 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (version 23.6 ) for Node.js Type Stripping
+- Node.js (version >=17.4 ) 
 - npm (Node package manager)
 - An API key from the chosen weather API provider
 
