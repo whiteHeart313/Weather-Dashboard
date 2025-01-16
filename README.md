@@ -47,31 +47,40 @@ This project is a small backend service that integrates with a free weather API 
 1. **`/v1/currentWeather` Endpoint**:
    - **Description**: Fetches the current weather data for a specified city.
    - **Method**: GET
-   - **Request Body**: ``` {"cityName": "string" } ```
-
-   - **Response**: ```
-                  {
-            "cityName": "string",
-            "currentTemperature": "string",
-            "weatherDescription": "string",
-            "humidityLevel": "string",
-            "windSpeed": "string",
-            "latitude": "number",
-            "longitude": "number"
-               } 
-               ```
+   - **Request Body**: 
+      ```
+      {"cityName": "string" }
+      ```
+   - **Response**: 
+      ```
+      {
+         "cityName": "string",
+         "currentTemperature": "string",
+         "weatherDescription": "string",
+         "humidityLevel": "string",
+         "windSpeed": "string",
+         "latitude": "number",
+         "longitude": "number"
+      } 
+      ```
 
 
 2. **`/v1/5-DayWeatherForecast` Endpoint**:
    - **Description**: Fetches the 5-day weather forecast data for a specified city, including the average temperature and weather description for each day.
    - **Method**: GET
-   - **Request Body**: ```{cityName : string }```
-   - **Response**:```[
-  {
-    "date": "string",
-    "averageTemperature": "number",
-    "weatherDescription": "string"
-  }
-]```
+   - **Request Body**: 
+      ```
+      {cityName : string }
+      ```
+   - **Response**:
+      ```
+      [
+         {
+            "date": "string",
+            "averageTemperature": "number",
+            "weatherDescription": "string"
+         }
+      ]
+      ```
 
 
