@@ -28,12 +28,50 @@ This project is a small backend service that integrates with a free weather API 
    cd weather-api-backend 
 2. Install dependencies: 
    ``` npm install ```
-3. Create a .env file in the root directory and add your API key
-    ``` WEATHER_API_KEY=your_api_key_here ```
+3. In .env.example file in the root directory, add your API key
+    ``` OPEN_WEATHER_KEY=your_api_key_here ```
 
 ## Running the Service
 ### To start the server, run the following command:
 
 ``` npm start   ```
-### The service will be available at http://localhost:3000.
+### The service will be available at http://localhost:8080.
+
+### To test the server, run the following command:
+
+``` npm test   ```
+
+
+### API Endpoints
+
+1. **`/v1/currentWeather` Endpoint**:
+   - **Description**: Fetches the current weather data for a specified city.
+   - **Method**: GET
+   - **Request Body**: ``` {"cityName": "string" } ```
+
+   - **Response**: ```
+                  {
+            "cityName": "string",
+            "currentTemperature": "string",
+            "weatherDescription": "string",
+            "humidityLevel": "string",
+            "windSpeed": "string",
+            "latitude": "number",
+            "longitude": "number"
+               } 
+               ```
+
+
+2. **`/v1/5-DayWeatherForecast` Endpoint**:
+   - **Description**: Fetches the 5-day weather forecast data for a specified city, including the average temperature and weather description for each day.
+   - **Method**: GET
+   - **Request Body**: ```{cityName : string }```
+   - **Response**:```[
+  {
+    "date": "string",
+    "averageTemperature": "number",
+    "weatherDescription": "string"
+  }
+]```
+
 
