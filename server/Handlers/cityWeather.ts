@@ -70,32 +70,7 @@ export const getCityForecastWeather: typeValidation<userRequestWeather, DailyFor
 
     const response = await axios.get(url);
     const forecastData = response.data.list;
-
-    const dailyForecasts: {
-      [date: string]: { temps: number[]; descriptions: string[] };
-    } = {};
-
-    forecastData.forEach((entry: any) => {
-      const date = entry.dt_txt.split(' ')[0];
-      if (!dailyForecasts[date]) {
-        dailyForecasts[date] = { temps: [], descriptions: [] };
-      }
-      dailyForecasts[date].temps.push(entry.main.temp);
-      dailyForecasts[date].descriptions.push(entry.weather[0].description);
-    });
-    // the API return 4 weather descriptions for each day, we will use the first one
-    const result: DailyForecast[] = Object.keys(dailyForecasts).map(date => {
-      const temps = dailyForecasts[date].temps;
-      const descriptions = dailyForecasts[date].descriptions;
-      const averageTemperature = `${temps.reduce((a, b) => a + b, 0) / temps.length} °C`;
-      const weatherDescription = descriptions[0];
-
-      return {
-        date,
-        averageTemperature,
-        weatherDescription,
-      };
-    });
+    const result: DailyForecast[] = getDailyForecast(forecastData);
 
     await setInCache(req.path, cityName, result);
 
@@ -105,4 +80,33 @@ export const getCityForecastWeather: typeValidation<userRequestWeather, DailyFor
       res.status(error.response.data.cod).send({ message: error.response.data.message });
     } else res.status(500).send({ message: 'Something Went Wrong! ' });
   }
+};
+
+// this souldnot be any !
+const getDailyForecast = (forecastData: any) => {
+  const dailyForecasts: {
+    [date: string]: { temps: number[]; descriptions: string[] };
+  } = {};
+
+  forecastData.forEach((entry: any) => {
+    const date = entry.dt_txt.split(' ')[0];
+    if (!dailyForecasts[date]) {
+      dailyForecasts[date] = { temps: [], descriptions: [] };
+    }
+    dailyForecasts[date].temps.push(entry.main.temp);
+    dailyForecasts[date].descriptions.push(entry.weather[0].description);
+  });
+  // the API return 4 weather descriptions for each day, we will use the first one
+  return Object.keys(dailyForecasts).map(date => {
+    const temps = dailyForecasts[date].temps;
+    const descriptions = dailyForecasts[date].descriptions;
+    const averageTemperature = `${temps.reduce((a, b) => a + b, 0) / temps.length} °C`;
+    const weatherDescription = descriptions[0];
+
+    return {
+      date,
+      averageTemperature,
+      weatherDescription,
+    };
+  });
 };
