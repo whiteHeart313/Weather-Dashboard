@@ -1,11 +1,7 @@
-import {
-  cityWeatherResponse,
-  typeValidation,
-  userRequestWeather,
-  DailyForecast,
-} from "../types";
-import axios from "axios";
-
+import { cityWeatherResponse, typeValidation, userRequestWeather, DailyForecast } from '../types';
+import axios from 'axios';
+import { RedisClientType } from 'redis';
+import { getFromCache, redisClient, setInCache } from '../cache/cacheDataStore';
 export const getCityCurrentWeather: typeValidation<
   userRequestWeather,
   cityWeatherResponse
@@ -13,10 +9,19 @@ export const getCityCurrentWeather: typeValidation<
   const { cityName } = req.body;
 
   if (!cityName) {
-    res.status(400).send({ message: "City name is required" });
+    res.status(400).send({ message: 'City name is required' });
     return;
   }
 
+  const cachedData = await getFromCache(req.path, cityName);
+
+  if (cachedData !== null) {
+    console.log('here data is returned from the cache ');
+    res.status(200).send(cachedData as cityWeatherResponse);
+    return;
+  }
+
+  // call the API
   try {
     const apiKey = process.env.OPEN_WEATHER_KEY;
     const firstPartOfUrl = process.env.OPEN_WEATHER_API_LINK;
@@ -30,28 +35,31 @@ export const getCityCurrentWeather: typeValidation<
       windSpeed: response.data.wind.speed,
     };
 
+    await setInCache(req.path, cityName, weatherData);
+
     res.status(200).send(weatherData);
   } catch (error: unknown) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response &&
-      error.response.data.cod
-    ) {
-      res
-        .status(error.response.data.cod)
-        .send({ message: error.response.data.message });
-    } else res.status(500).send({ message: "Something Went Wrong! " });
+    if (axios.isAxiosError(error) && error.response && error.response.data.cod) {
+      res.status(error.response.data.cod).send({ message: error.response.data.message });
+    } else res.status(500).send({ message: 'Something Went Wrong! ' });
   }
 };
 
-export const getCityForecastWeather: typeValidation<
-  userRequestWeather,
-  DailyForecast[]
-> = async (req, res) => {
+export const getCityForecastWeather: typeValidation<userRequestWeather, DailyForecast[]> = async (
+  req,
+  res
+) => {
   const { cityName } = req.body;
 
   if (!cityName) {
-    res.status(400).send({ message: "City name is required" });
+    res.status(400).send({ message: 'City name is required' });
+    return;
+  }
+  const cachedData = await getFromCache(req.path, cityName);
+
+  if (cachedData !== null) {
+    console.log('here data is returned from the cache ');
+    res.status(200).send(cachedData as DailyForecast[]);
     return;
   }
 
@@ -68,7 +76,7 @@ export const getCityForecastWeather: typeValidation<
     } = {};
 
     forecastData.forEach((entry: any) => {
-      const date = entry.dt_txt.split(" ")[0];
+      const date = entry.dt_txt.split(' ')[0];
       if (!dailyForecasts[date]) {
         dailyForecasts[date] = { temps: [], descriptions: [] };
       }
@@ -76,12 +84,10 @@ export const getCityForecastWeather: typeValidation<
       dailyForecasts[date].descriptions.push(entry.weather[0].description);
     });
     // the API return 4 weather descriptions for each day, we will use the first one
-    const result: DailyForecast[] = Object.keys(dailyForecasts).map((date) => {
+    const result: DailyForecast[] = Object.keys(dailyForecasts).map(date => {
       const temps = dailyForecasts[date].temps;
       const descriptions = dailyForecasts[date].descriptions;
-      const averageTemperature = `${
-        temps.reduce((a, b) => a + b, 0) / temps.length
-      } °C`;
+      const averageTemperature = `${temps.reduce((a, b) => a + b, 0) / temps.length} °C`;
       const weatherDescription = descriptions[0];
 
       return {
@@ -91,16 +97,12 @@ export const getCityForecastWeather: typeValidation<
       };
     });
 
+    await setInCache(req.path, cityName, result);
+
     res.status(200).send(result);
   } catch (error: unknown) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response &&
-      error.response.data.cod
-    ) {
-      res
-        .status(error.response.data.cod)
-        .send({ message: error.response.data.message });
-    } else res.status(500).send({ message: "Something Went Wrong! " });
+    if (axios.isAxiosError(error) && error.response && error.response.data.cod) {
+      res.status(error.response.data.cod).send({ message: error.response.data.message });
+    } else res.status(500).send({ message: 'Something Went Wrong! ' });
   }
 };
